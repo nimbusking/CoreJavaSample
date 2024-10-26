@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.openjdk.jol.info.ClassLayout;
 
 @Slf4j
-public class LockEscalationDemo{
+public class LockEscalationDemo {
 
     public static void main(String[] args) throws InterruptedException {
         log.info(ClassLayout.parseInstance(new Object()).toPrintable());
@@ -18,9 +18,9 @@ public class LockEscalationDemo{
         new Thread(new Runnable() {
             @Override
             public void run() {
-                log.info(Thread.currentThread().getName()+"开始执行。。。\n"
-                        +ClassLayout.parseInstance(obj).toPrintable());
-                synchronized (obj){
+                log.info(Thread.currentThread().getName() + "开始执行。。。\n"
+                        + ClassLayout.parseInstance(obj).toPrintable());
+                synchronized (obj) {
                     // 思考：偏向锁执行过程中，调用hashcode会发生什么？
                     //obj.hashCode();
 //                    //obj.notify();
@@ -30,13 +30,13 @@ public class LockEscalationDemo{
 ////                        e.printStackTrace();
 ////                    }
 
-                    log.info(Thread.currentThread().getName()+"获取锁执行中。。。\n"
-                            +ClassLayout.parseInstance(obj).toPrintable());
+                    log.info(Thread.currentThread().getName() + "获取锁执行中。。。\n"
+                            + ClassLayout.parseInstance(obj).toPrintable());
                 }
-                log.info(Thread.currentThread().getName()+"释放锁。。。\n"
-                        +ClassLayout.parseInstance(obj).toPrintable());
+                log.info(Thread.currentThread().getName() + "释放锁。。。\n"
+                        + ClassLayout.parseInstance(obj).toPrintable());
             }
-        },"thread1").start();
+        }, "thread1").start();
 
         //控制线程竞争时机
         Thread.sleep(1);
@@ -44,44 +44,41 @@ public class LockEscalationDemo{
         new Thread(new Runnable() {
             @Override
             public void run() {
-                log.info(Thread.currentThread().getName()+"开始执行。。。\n"
-                        +ClassLayout.parseInstance(obj).toPrintable());
-                synchronized (obj){
+                log.info(Thread.currentThread().getName() + "开始执行。。。\n"
+                        + ClassLayout.parseInstance(obj).toPrintable());
+                synchronized (obj) {
 
-                    log.info(Thread.currentThread().getName()+"获取锁执行中。。。\n"
-                            +ClassLayout.parseInstance(obj).toPrintable());
+                    log.info(Thread.currentThread().getName() + "获取锁执行中。。。\n"
+                            + ClassLayout.parseInstance(obj).toPrintable());
                 }
-                log.info(Thread.currentThread().getName()+"释放锁。。。\n"
-                        +ClassLayout.parseInstance(obj).toPrintable());
+                log.info(Thread.currentThread().getName() + "释放锁。。。\n"
+                        + ClassLayout.parseInstance(obj).toPrintable());
             }
-        },"thread2").start();
+        }, "thread2").start();
 
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                log.info(Thread.currentThread().getName()+"开始执行。。。\n"
-                        +ClassLayout.parseInstance(obj).toPrintable());
-                synchronized (obj){
+                log.info(Thread.currentThread().getName() + "开始执行。。。\n"
+                        + ClassLayout.parseInstance(obj).toPrintable());
+                synchronized (obj) {
 
-                    log.info(Thread.currentThread().getName()+"获取锁执行中。。。\n"
-                            +ClassLayout.parseInstance(obj).toPrintable());
+                    log.info(Thread.currentThread().getName() + "获取锁执行中。。。\n"
+                            + ClassLayout.parseInstance(obj).toPrintable());
                 }
                 try {
                     Thread.sleep(2000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                log.info(Thread.currentThread().getName()+"释放锁。。。\n"
-                        +ClassLayout.parseInstance(obj).toPrintable());
+                log.info(Thread.currentThread().getName() + "释放锁。。。\n"
+                        + ClassLayout.parseInstance(obj).toPrintable());
             }
-        },"thread3").start();
-
+        }, "thread3").start();
 
         Thread.sleep(5000);
         log.info(ClassLayout.parseInstance(obj).toPrintable());
-
-
 
     }
 }

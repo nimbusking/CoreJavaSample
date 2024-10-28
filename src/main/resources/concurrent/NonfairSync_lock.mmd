@@ -1,0 +1,20 @@
+sequenceDiagram
+actor User
+User ->> NonfairSync : lock
+activate NonfairSync
+NonfairSync ->> AbstractQueuedSynchronizer : CAS对AQS抽象类的stateOffset操作compareAndSetState(0,1)
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -->> NonfairSync : #32; 
+deactivate AbstractQueuedSynchronizer
+alt 判断上述compareAndSetState(0, 1)结果
+NonfairSync ->> Thread : 调用currentThread()设置exclusiveOwnerThread=currentThread
+activate Thread
+Thread -->> NonfairSync : #32; 
+deactivate Thread
+else 
+NonfairSync ->> AbstractQueuedSynchronizer : 独占模式尝试获取锁acquire(1)
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -->> NonfairSync : #32; 
+deactivate AbstractQueuedSynchronizer
+end
+deactivate NonfairSync

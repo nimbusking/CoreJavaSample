@@ -1,0 +1,21 @@
+@startuml
+participant Actor
+Actor -> NonfairSync : lock
+activate NonfairSync
+NonfairSync -> AbstractQueuedSynchronizer : compareAndSetState
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer --> NonfairSync
+deactivate AbstractQueuedSynchronizer
+alt CAS对AQS抽象类的stateOffset操作:compareAndSetState(0, 1)
+NonfairSync -> Thread : 设置exclusiveOwnerThread=currentThread
+activate Thread
+Thread --> NonfairSync
+deactivate Thread
+else 
+NonfairSync -> AbstractQueuedSynchronizer : 调用acquire(1)方法尝试获取锁
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer --> NonfairSync
+deactivate AbstractQueuedSynchronizer
+end
+return
+@enduml

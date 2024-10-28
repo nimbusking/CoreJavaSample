@@ -1,0 +1,236 @@
+@startuml
+participant Actor
+Actor -> AbstractQueuedSynchronizer : acquire
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : tryAcquire
+activate AbstractQueuedSynchronizer
+create UnsupportedOperationException
+AbstractQueuedSynchronizer -> UnsupportedOperationException : new
+activate UnsupportedOperationException
+UnsupportedOperationException --> AbstractQueuedSynchronizer
+deactivate UnsupportedOperationException
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : addWaiter
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> Thread : currentThread
+activate Thread
+Thread --> AbstractQueuedSynchronizer
+deactivate Thread
+create Node
+AbstractQueuedSynchronizer -> Node : new
+activate Node
+Node --> AbstractQueuedSynchronizer
+deactivate Node
+alt pred != null
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : compareAndSetTail
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> Unsafe : compareAndSwapObject
+activate Unsafe
+Unsafe --> AbstractQueuedSynchronizer
+deactivate Unsafe
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+alt compareAndSetTail(pred, node)
+note right of AbstractQueuedSynchronizer : Empty
+end
+note right of AbstractQueuedSynchronizer : Empty
+end
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : enq
+activate AbstractQueuedSynchronizer
+loop 
+alt t == null
+create Node
+AbstractQueuedSynchronizer -> Node : new
+activate Node
+Node --> AbstractQueuedSynchronizer
+deactivate Node
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : compareAndSetHead
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> Unsafe : compareAndSwapObject
+activate Unsafe
+Unsafe --> AbstractQueuedSynchronizer
+deactivate Unsafe
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+alt compareAndSetHead(new Node())
+note right of AbstractQueuedSynchronizer : Empty
+end
+else 
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : compareAndSetTail
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> Unsafe : compareAndSwapObject
+activate Unsafe
+Unsafe --> AbstractQueuedSynchronizer
+deactivate Unsafe
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+alt compareAndSetTail(t, node)
+note right of AbstractQueuedSynchronizer : Empty
+end
+note right of AbstractQueuedSynchronizer : Empty
+end
+note right of AbstractQueuedSynchronizer : Empty
+end
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : acquireQueued
+activate AbstractQueuedSynchronizer
+loop 
+AbstractQueuedSynchronizer -> Node : predecessor
+activate Node
+Node --> AbstractQueuedSynchronizer
+deactivate Node
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : tryAcquire
+activate AbstractQueuedSynchronizer
+create UnsupportedOperationException
+AbstractQueuedSynchronizer -> UnsupportedOperationException : new
+activate UnsupportedOperationException
+UnsupportedOperationException --> AbstractQueuedSynchronizer
+deactivate UnsupportedOperationException
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+alt p == head && tryAcquire(arg)
+note right of AbstractQueuedSynchronizer : Empty
+end
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : shouldParkAfterFailedAcquire
+activate AbstractQueuedSynchronizer
+alt ws == Node.SIGNAL
+note right of AbstractQueuedSynchronizer : Empty
+end
+alt ws > 0
+loop pred.waitStatus > 0
+note right of AbstractQueuedSynchronizer : Empty
+end
+else 
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : compareAndSetWaitStatus
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> Unsafe : compareAndSwapInt
+activate Unsafe
+Unsafe --> AbstractQueuedSynchronizer
+deactivate Unsafe
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+end
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : parkAndCheckInterrupt
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> LockSupport : park
+activate LockSupport
+LockSupport --> AbstractQueuedSynchronizer
+deactivate LockSupport
+AbstractQueuedSynchronizer -> Thread : interrupted
+activate Thread
+Thread --> AbstractQueuedSynchronizer
+deactivate Thread
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+alt shouldParkAfterFailedAcquire(p, node) &&
+                    parkAndCheckInterrupt()
+note right of AbstractQueuedSynchronizer : Empty
+end
+note right of AbstractQueuedSynchronizer : Empty
+end
+alt failed
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : cancelAcquire
+activate AbstractQueuedSynchronizer
+alt node == null
+note right of AbstractQueuedSynchronizer : Empty
+end
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : compareAndSetTail
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> Unsafe : compareAndSwapObject
+activate Unsafe
+Unsafe --> AbstractQueuedSynchronizer
+deactivate Unsafe
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+alt node == tail && compareAndSetTail(node, pred)
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : compareAndSetNext
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> Unsafe : compareAndSwapObject
+activate Unsafe
+Unsafe --> AbstractQueuedSynchronizer
+deactivate Unsafe
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+else 
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : compareAndSetWaitStatus
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> Unsafe : compareAndSwapInt
+activate Unsafe
+Unsafe --> AbstractQueuedSynchronizer
+deactivate Unsafe
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+alt pred != head &&
+                ((ws = pred.waitStatus) == Node.SIGNAL ||
+                 (ws <= 0 && compareAndSetWaitStatus(pred, ws, Node.SIGNAL))) &&
+                pred.thread != null
+alt next != null && next.waitStatus <= 0
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : compareAndSetNext
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> Unsafe : compareAndSwapObject
+activate Unsafe
+Unsafe --> AbstractQueuedSynchronizer
+deactivate Unsafe
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+end
+else 
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : unparkSuccessor
+activate AbstractQueuedSynchronizer
+alt ws < 0
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : compareAndSetWaitStatus
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> Unsafe : compareAndSwapInt
+activate Unsafe
+Unsafe --> AbstractQueuedSynchronizer
+deactivate Unsafe
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+end
+alt s == null || s.waitStatus > 0
+loop t != null && t != node
+alt t.waitStatus <= 0
+note right of AbstractQueuedSynchronizer : Empty
+end
+note right of AbstractQueuedSynchronizer : Empty
+end
+note right of AbstractQueuedSynchronizer : Empty
+end
+alt s != null
+AbstractQueuedSynchronizer -> LockSupport : unpark
+activate LockSupport
+LockSupport --> AbstractQueuedSynchronizer
+deactivate LockSupport
+end
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+end
+end
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+end
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+alt !tryAcquire(arg) &&
+            acquireQueued(addWaiter(Node.EXCLUSIVE), arg)
+AbstractQueuedSynchronizer -> AbstractQueuedSynchronizer : selfInterrupt
+activate AbstractQueuedSynchronizer
+AbstractQueuedSynchronizer -> Thread : currentThread
+activate Thread
+Thread --> AbstractQueuedSynchronizer
+deactivate Thread
+AbstractQueuedSynchronizer -> Thread : interrupt
+activate Thread
+Thread --> AbstractQueuedSynchronizer
+deactivate Thread
+AbstractQueuedSynchronizer --> AbstractQueuedSynchronizer
+deactivate AbstractQueuedSynchronizer
+end
+return
+@enduml

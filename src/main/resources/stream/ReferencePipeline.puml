@@ -1,0 +1,29 @@
+@startuml
+
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+
+class AbstractPipeline<E_IN, E_OUT, S>
+interface AutoCloseable << interface >>
+interface BaseStream<T, S> << interface >>
+class PipelineHelper<P_OUT>
+class ReferencePipeline<P_IN, P_OUT>
+interface Stream<T> << interface >>
+class Head<E_IN, E_OUT>
+class StatelessOp<E_IN, E_OUT>
+class StatefulOp<E_IN, E_OUT>
+interface Sink<T> << interface >>
+interface Consumer<T> << interface >>
+
+AbstractPipeline   -[#008200,dashed]-^  BaseStream
+AbstractPipeline   -[#000082,plain]-^  PipelineHelper
+BaseStream         -[#008200,plain]-^  AutoCloseable
+ReferencePipeline  -[#000082,plain]-^  AbstractPipeline
+ReferencePipeline  -[#008200,dashed]-^  Stream
+Stream             -[#008200,plain]-^  BaseStream
+Head  -[#000082,plain]-^  ReferencePipeline
+StatelessOp  -[#000082,plain]-^  ReferencePipeline
+StatefulOp  -[#000082,plain]-^  ReferencePipeline
+Sink             -[#008200,plain]-^  Consumer
+@enduml

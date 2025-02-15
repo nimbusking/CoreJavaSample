@@ -5,6 +5,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static cc.nimbusk.corejava.concurent.SeqPrint.TOTAL_NUMS;
+
 class SharedData {
     private int number = 1; // 起始数字
     private final Lock lock = new ReentrantLock(); // 独占锁控制打印资源访问
@@ -20,13 +22,19 @@ class SharedData {
     public void print(int threadId) throws InterruptedException {
         lock.lock();
         try {
-            while (number <= 100) {
+            while (number <= TOTAL_NUMS) {
                 // 检查是否轮到当前线程执行
                 while (currentId != threadId) {
                     // 不是直接阻塞
                     conditions[threadId - 1].await();
                 }
-                if (number > 100) break;
+                if (number > TOTAL_NUMS) {
+                    // 轮转至下一个线程，计算下一个线程号
+                    currentId = (currentId % 3) + 1;
+                    // 唤醒下一个线程
+                    conditions[currentId - 1].signal();
+                    break;
+                }
 
                 System.out.println(Thread.currentThread().getName() + " : " + number);
                 number++;
@@ -36,7 +44,7 @@ class SharedData {
                 conditions[currentId - 1].signal();
             }
             // 确保所有线程最终都能退出
-            for (Condition cond : conditions) cond.signal();
+//            for (Condition cond : conditions) cond.signal();
         } finally {
             lock.unlock();
         }
@@ -63,6 +71,7 @@ class PrintThread extends Thread {
 }
 
 public class SeqPrint {
+    public static final int TOTAL_NUMS = 100;
     public static void main(String[] args) {
         SharedData sharedData = new SharedData();
         new PrintThread(sharedData, 1).start();

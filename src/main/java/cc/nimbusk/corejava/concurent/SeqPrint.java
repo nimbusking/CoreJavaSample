@@ -5,12 +5,13 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static cc.nimbusk.corejava.concurent.SeqPrint.THREAD_NUMS;
 import static cc.nimbusk.corejava.concurent.SeqPrint.TOTAL_NUMS;
 
 class SharedData {
     private int number = 1; // 起始数字
     private final Lock lock = new ReentrantLock(); // 独占锁控制打印资源访问
-    private final Condition[] conditions = new Condition[3]; // Condition精准唤醒对应线程
+    private final Condition[] conditions = new Condition[THREAD_NUMS]; // Condition精准唤醒对应线程
     private int currentId = 1; // 当前应执行的线程ID
 
     public SharedData() {
@@ -30,7 +31,7 @@ class SharedData {
                 }
                 if (number > TOTAL_NUMS) {
                     // 轮转至下一个线程，计算下一个线程号
-                    currentId = (currentId % 3) + 1;
+                    currentId = (currentId % THREAD_NUMS) + 1;
                     // 唤醒下一个线程
                     conditions[currentId - 1].signal();
                     break;
@@ -39,7 +40,7 @@ class SharedData {
                 System.out.println(Thread.currentThread().getName() + " : " + number);
                 number++;
                 // 轮转至下一个线程，计算下一个线程号
-                currentId = (currentId % 3) + 1;
+                currentId = (currentId % THREAD_NUMS) + 1;
                 // 唤醒下一个线程
                 conditions[currentId - 1].signal();
             }
@@ -71,11 +72,15 @@ class PrintThread extends Thread {
 }
 
 public class SeqPrint {
-    public static final int TOTAL_NUMS = 100;
+    public static final int TOTAL_NUMS = 537;
+    public static final int THREAD_NUMS = 6;
     public static void main(String[] args) {
         SharedData sharedData = new SharedData();
         new PrintThread(sharedData, 1).start();
         new PrintThread(sharedData, 2).start();
         new PrintThread(sharedData, 3).start();
+        new PrintThread(sharedData, 4).start();
+        new PrintThread(sharedData, 5).start();
+        new PrintThread(sharedData, 6).start();
     }
 }

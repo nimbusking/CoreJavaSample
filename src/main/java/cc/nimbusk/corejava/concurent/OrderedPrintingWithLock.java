@@ -8,9 +8,9 @@ import java.util.concurrent.locks.ReentrantLock;
 class OrderedData {
     private final Lock lock = new ReentrantLock();
     private final Condition[] conditions = new Condition[2];
-    private int[] odds = {1, 3, 5, 7, 9};
+    private final int[] odds = {1, 3, 5, 7, 9};
     private int oddIndex = 0;
-    private int[] evens = {2, 4, 6, 8, 10};
+    private final int[] evens = {2, 4, 6, 8, 10};
     private int evenIndex = 0;
     private int currentId = 1;
 

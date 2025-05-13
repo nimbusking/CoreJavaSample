@@ -72,15 +72,15 @@ class PrintThread extends Thread {
 }
 
 public class SeqPrint {
-    public static final int TOTAL_NUMS = 537;
-    public static final int THREAD_NUMS = 6;
+    public static final int TOTAL_NUMS = 47;
+    public static final int THREAD_NUMS = 2;
     public static void main(String[] args) {
         SharedData sharedData = new SharedData();
         new PrintThread(sharedData, 1).start();
         new PrintThread(sharedData, 2).start();
-        new PrintThread(sharedData, 3).start();
-        new PrintThread(sharedData, 4).start();
-        new PrintThread(sharedData, 5).start();
-        new PrintThread(sharedData, 6).start();
+//        new PrintThread(sharedData, 3).start();
+//        new PrintThread(sharedData, 4).start();
+//        new PrintThread(sharedData, 5).start();
+//        new PrintThread(sharedData, 6).start();
     }
 }
